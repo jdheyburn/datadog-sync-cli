@@ -3,10 +3,24 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019 Datadog, Inc.
 
+import yaml
 from click import option
 import click_config_file
 
 from datadog_sync import constants
+
+
+class CustomProvider:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, file_path, cmd_name):
+        with open(file_path) as f:
+            return yaml.load(f, Loader=yaml.Loader)
+
+
+click_config_file.configobj_provider = CustomProvider
+
 
 _source_auth_options = [
     option(
@@ -84,7 +98,7 @@ _common_options = [
         type=int,
         help="Max number of workers when running operations in multi-threads.",
     ),
-    click_config_file.configuration_option(),
+    click_config_file.configuration_option(implicit=False),
 ]
 
 
